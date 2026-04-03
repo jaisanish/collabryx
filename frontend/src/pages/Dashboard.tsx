@@ -94,11 +94,37 @@ const Dashboard = () => {
     }
   };
 
+  const copyToClipboard = (text: string) => {
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text);
+      return true;
+    } else {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      textArea.style.position = "fixed";
+      textArea.style.left = "-9999px";
+      textArea.style.top = "0";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        textArea.remove();
+        return true;
+      } catch (err) {
+        textArea.remove();
+        return false;
+      }
+    }
+  };
+
   const copyJoinCode = (e: React.MouseEvent, code: string) => {
     e.preventDefault();
     e.stopPropagation();
-    navigator.clipboard.writeText(code);
-    alert('Join code copied!');
+    const successful = copyToClipboard(code);
+    if (successful) {
+      alert('Join code copied!');
+    }
   };
 
   const handleLeaveWorkspace = async (e: React.MouseEvent, id: string, isCreator: boolean, membersLength: number) => {
