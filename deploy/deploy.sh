@@ -22,7 +22,18 @@ sudo apt-get install -y \
     git \
     nginx
 
-# 2. Install Docker Engine (Required for code execution)
+# 2. Add SWAP space for memory-intensive builds (Prevents freezing)
+if ! [ -f /swapfile ]
+then
+    echo "💾 Creating 2GB SWAP file for memory stability..."
+    sudo fallocate -l 2G /swapfile
+    sudo chmod 600 /swapfile
+    sudo mkswap /swapfile
+    sudo swapon /swapfile
+    echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+fi
+
+# 3. Install Docker Engine (Required for code execution)
 if ! command -v docker &> /dev/null
 then
     echo "🐋 Installing Docker Engine via Official Script..."
@@ -71,19 +82,25 @@ fi
 # If not, use: git clone <repo_url> $PROJECT_DIR
 cd $PROJECT_DIR
 
-# 5. Install Backend dependencies and Build
+# 6. Install Backend dependencies and Build
 echo "📦 Setting up Backend..."
 cd backend
 npm install
+# Increase memory limit for compilation
+export NODE_OPTIONS="--max-old-space-size=2048"
 npm run build 
 
-# 6. Install Frontend dependencies and Build
+# 7. Install Frontend dependencies and Build
 echo "📦 Setting up Frontend..."
 cd ../frontend
 npm install
+# Ensure fresh assets (favicon)
+rm -rf dist
+# Increase memory limit for compilation
+export NODE_OPTIONS="--max-old-space-size=2048"
 npm run build
 
-# 7. Configure Nginx
+# 8. Configure Nginx
 echo "⚙️ Configuring Nginx reverse proxy..."
 sudo cp ../deploy/nginx.conf $NGINX_CONF_PATH
 sudo nginx -t
