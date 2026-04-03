@@ -2,8 +2,8 @@ import axios from 'axios';
 
 // Create a configured Axios instance
 const api = axios.create({
-  // Point to the Express backend running on port 5000
-  baseURL: 'http://localhost:5000/api',
+  // Use relative path for production (proxied by Nginx)
+  baseURL: '/api',
 });
 
 // Automatically inject JWT token into request headers if it exists

@@ -105,7 +105,8 @@ const WorkspaceEditor = () => {
 
   useEffect(() => {
     if (loading || error) return;
-    socketRef.current = io('http://localhost:5000');
+    // Point the socket to the same host for production (proxied by Nginx)
+    socketRef.current = io();
     socketRef.current.emit('join-workspace', id);
     socketRef.current.on('code-change', (newCode: string) => {
       isExternalChange.current = true;
