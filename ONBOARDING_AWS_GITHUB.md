@@ -29,7 +29,7 @@ First, we need to push your local code to your new GitHub account.
 6.  **Push your code**:
     -   Follow the instructions on GitHub to add the remote and push:
     ```bash
-    git remote add origin https://github.com/YOUR_USERNAME/collabryx.git
+    git remote add origin https://github.com/jaisanish/collabryx.git
     git branch -M main
     git push -u origin main
     ```
