@@ -11,10 +11,43 @@ NGINX_CONF_PATH="/etc/nginx/sites-available/default"
 echo "🚀 Starting Collabryx deployment..."
 
 # 1. Update system and install initial tools
+echo "📦 Installing system dependencies..."
 sudo apt-get update
-sudo apt-get install -y curl build-essential git nginx
+sudo apt-get install -y \
+    ca-certificates \
+    curl \
+    gnupg \
+    lsb-release \
+    build-essential \
+    git \
+    nginx
 
-# 2. Install Node.js (v20 LTS recommended)
+# 2. Install Docker Engine (Required for code execution)
+if ! command -v docker &> /dev/null
+then
+    echo "🐋 Installing Docker Engine..."
+    sudo mkdir -p /etc/apt/keyrings
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+    echo \
+      "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+      $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    sudo apt-get update
+    sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+    
+    echo "⚙️ Configuring Docker permissions..."
+    sudo usermod -aG docker ubuntu
+    # Fix permissions for the current session so PM2 can access it immediately
+    sudo chmod 666 /var/run/docker.sock
+fi
+
+echo "📥 Pre-pulling language images (this might take a few minutes)..."
+sudo docker pull node:18-alpine
+sudo docker pull python:3-alpine
+sudo docker pull eclipse-temurin:17-jdk-alpine
+sudo docker pull frolvlad/alpine-gxx
+sudo docker pull busybox
+
+# 3. Install Node.js (v20 LTS recommended)
 if ! command -v node &> /dev/null
 then
     echo "Installing Node.js..."
