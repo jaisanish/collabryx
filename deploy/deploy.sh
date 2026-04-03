@@ -25,19 +25,24 @@ sudo apt-get install -y \
 # 2. Install Docker Engine (Required for code execution)
 if ! command -v docker &> /dev/null
 then
-    echo "🐋 Installing Docker Engine..."
-    sudo mkdir -p /etc/apt/keyrings
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-    echo \
-      "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-      $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-    sudo apt-get update
-    sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+    echo "🐋 Installing Docker Engine via Official Script..."
+    curl -fsSL https://get.docker.com -o get-docker.sh
+    sudo sh get-docker.sh
     
     echo "⚙️ Configuring Docker permissions..."
     sudo usermod -aG docker ubuntu
     # Fix permissions for the current session so PM2 can access it immediately
     sudo chmod 666 /var/run/docker.sock
+    rm get-docker.sh
+fi
+
+# Verify Docker installation
+if command -v docker &> /dev/null
+then
+    echo "✅ Docker is installed and ready: $(docker --version)"
+else
+    echo "❌ ERROR: Docker installation failed. Please check the logs."
+    exit 1
 fi
 
 echo "📥 Pre-pulling language images (this might take a few minutes)..."

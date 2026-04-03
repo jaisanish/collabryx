@@ -84,7 +84,19 @@ export const executeCode = async (req: AuthRequest, res: Response) => {
     finalArgs.push('--env', `CODE=${code}`, langConfig.image, 'sh', '-c', langConfig.command);
   }
 
-  const child = spawn('docker', finalArgs);
+  const dockerPath = '/usr/bin/docker';
+  const child = spawn(dockerPath, finalArgs);
+
+  child.on('error', (err: any) => {
+    clearTimeout(timeout);
+    if (!res.headersSent) {
+      console.error('Docker spawn error:', err);
+      res.status(500).json({ 
+        error: 'Engine Error: Code execution environment (Docker) is not initialized on the server. Please run the deployment script again.',
+        details: err.message
+      });
+    }
+  });
 
   // Pipe user input to the container's stdin
   if (input) {
