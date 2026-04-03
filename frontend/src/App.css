@@ -1,0 +1,6 @@
+/* App-level layout — no Vite boilerplate */
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
