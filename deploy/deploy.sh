@@ -106,6 +106,10 @@ sudo cp ../deploy/nginx.conf $NGINX_CONF_PATH
 sudo nginx -t
 sudo service nginx restart
 
+# 9. Fix permissions (Nginx needs access to /home/ubuntu)
+echo "🛡️ Fixing home directory permissions for Nginx..."
+sudo chmod +x /home/ubuntu
+
 # 8. Start Backend with PM2
 echo "🔥 Launching backend with PM2..."
 cd ..
